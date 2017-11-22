@@ -8,7 +8,7 @@ void init_file(t_file * file)
 	file->nb_elements = 0;
 }
 
-int file_vide(t_file * file)
+int file_vide(const t_file * file)
 {
 	return(file->tete == NULL);
 }
