@@ -32,4 +32,5 @@ t_element enlever_liste_indice(t_liste * liste, int indice);
 
 void afficher_liste(t_liste * liste);
 
+
 #endif
