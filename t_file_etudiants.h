@@ -19,7 +19,7 @@ typedef struct
 
 void init_file(t_file * file);
 
-int file_vide(t_file * file);
+int file_vide(const t_file * file);
 
 void ajout_debut(t_file * file, t_element element);
 
