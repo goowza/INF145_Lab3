@@ -30,4 +30,3 @@ t_element desenfiler(t_file * file);
 void afficher_file(t_file * file);
 
 #endif
-
