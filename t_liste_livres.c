@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "t_liste_livres.h"
@@ -93,7 +95,7 @@ void ajouter_liste_indice(t_liste * liste, t_element element, int indice)
 			ajouter_debut(liste, element);
 		}
 	}
-	
+
 }
 
 // enleve l'element a la position precisee par l'indice
@@ -147,6 +149,7 @@ void afficher_liste(t_liste * liste)
 	{
 		while (curseur != NULL)
 		{
+			
 			printf("[#%d : %d]\n", compteur, curseur->donnee.isbn);
 			curseur = curseur->suivant;
 			compteur++;
