@@ -25,4 +25,26 @@ typedef struct
 	int nb_livres_empruntes;
 }t_etudiant;
 
+typedef struct
+{
+	int gneeee;
+	//t_liste liste_livres;
+}t_biblio_chariot;
+
+typedef struct
+{
+	t_biblio_chariot * ptr_chariot;
+}t_biblio_robot;
+
+typedef struct
+{
+	t_biblio_robot * ptr_robot;
+	t_biblio_chariot * ptr_chariot;
+}t_biblio_machine;
+
+
+
+
+
 #endif
+
