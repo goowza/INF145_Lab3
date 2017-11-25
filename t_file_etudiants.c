@@ -31,14 +31,14 @@ void enfiler(t_file * file, t_element element)
 	t_noeud * nouveau_noeud = (t_noeud*)malloc(sizeof(t_noeud));
 	nouveau_noeud->donnee = element;
 
-	if(!file_vide(file))
+	if (!file_vide(file))
 	{
 		// aller a la fin de la liste
 		while (curseur->suivant != NULL)
 		{
 			curseur = curseur->suivant;
 		}
-		
+
 		// Mise a jour des liens
 		curseur->suivant = nouveau_noeud;
 		nouveau_noeud->suivant = NULL;
