@@ -1,7 +1,11 @@
+
 #ifndef _T_LISTE_LIVRES__
 #define _T_LISTE_LIVRES__
 
 #include "structs.h"
+
+#define SUCCES	1
+#define ECHEC	0
 
 //changer cette déclaration pour obtenir des listes d'un autre type
 typedef t_livre t_element;
@@ -24,9 +28,13 @@ int liste_vide(t_liste * liste);
 
 void ajouter_debut(t_liste * liste, t_element element);
 
+void ajouter_fin(t_liste * liste, t_element element);
+
 t_element enlever_debut(t_liste * liste);
 
-void ajouter_liste_indice(t_liste * liste, t_element element, int indice);
+t_element enlever_fin(t_liste * liste);
+
+int ajouter_liste_indice(t_liste * liste, t_element element, int indice);
 
 t_element enlever_liste_indice(t_liste * liste, int indice);
 
