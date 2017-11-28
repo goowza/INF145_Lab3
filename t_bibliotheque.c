@@ -302,8 +302,10 @@ void modifier_livre(t_bibliotheque * pBibli)
 	int isbn;
 	t_livre livre_modifie;
 	t_livre * livre_trouve;
-	initialiser_livre(&livre_modifie);
 	t_genre genre_livre;
+
+	initialiser_livre(&livre_modifie);
+	
 
 	// Recherche du livre a modifier
 	printf("Entrez le isbn du livre a modifier : ");
