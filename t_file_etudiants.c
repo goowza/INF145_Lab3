@@ -4,22 +4,28 @@
 
 void init_file(t_file * file)
 {
-	file->tete = NULL;
-	file->nb_elements = 0;
+	if (file != NULL)
+	{
+		file->tete = NULL;
+		file->nb_elements = 0;
+	}
 }
 
 int file_vide(const t_file * file)
 {
-	return(file->tete == NULL);
+	return(file->nb_elements == 0);
 }
 
 void ajout_debut(t_file * file, t_element element)
 {
 	t_noeud * nouveau_noeud = (t_noeud*)malloc(sizeof(t_noeud));
-	nouveau_noeud->donnee = element;
-	nouveau_noeud->suivant = file->tete;
-	file->tete = nouveau_noeud;
-	file->nb_elements++;
+	if (nouveau_noeud != NULL)
+	{
+		nouveau_noeud->donnee = element;
+		nouveau_noeud->suivant = file->tete;
+		file->tete = nouveau_noeud;
+		file->nb_elements++;
+	}
 }
 
 void enfiler(t_file * file, t_element element)
@@ -31,24 +37,27 @@ void enfiler(t_file * file, t_element element)
 	t_noeud * nouveau_noeud = (t_noeud*)malloc(sizeof(t_noeud));
 	nouveau_noeud->donnee = element;
 
-	if (!file_vide(file))
+	if (nouveau_noeud != NULL)
 	{
-		// aller a la fin de la liste
-		while (curseur->suivant != NULL)
+		if(!file_vide(file))
 		{
-			curseur = curseur->suivant;
+			// aller a la fin de la liste
+			while (curseur->suivant != NULL)
+			{
+				curseur = curseur->suivant;
+			}
+
+			// Mise a jour des liens
+			curseur->suivant = nouveau_noeud;
+			nouveau_noeud->suivant = NULL;
+
+			// mise a jour du nombre d'elements de la file
+			file->nb_elements++;
 		}
-
-		// Mise a jour des liens
-		curseur->suivant = nouveau_noeud;
-		nouveau_noeud->suivant = NULL;
-
-		// mise a jour du nombre d'elements de la file
-		file->nb_elements++;
-	}
-	else
-	{
-		ajout_debut(file, element);
+		else
+		{
+			ajout_debut(file, element);
+		}
 	}
 }
 
@@ -64,6 +73,11 @@ t_element desenfiler(t_file * file)
 		file->tete = file->tete->suivant;
 		free(tmp);
 		file->nb_elements--;
+	}
+	else
+	{
+		element_retire.annee_inscription = INVALIDE;
+		element_retire.ID = INVALIDE;
 	}
 	return element_retire;
 }
