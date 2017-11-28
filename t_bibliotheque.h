@@ -3,39 +3,6 @@
 
 #include "structs.h"
 
-#define NB_LIVRES_MAX_RANGEE        100
-#define NB_GENRES                   6
-#define BIBLIO_FICHIER		    "biblio.txt"
-#define BIBLIO_SAUVEGARDE	    "sauvegarde_bibliotheque.txt"
-
-#define TAILLE_TITRE	80
-#define TAILLE_NOM		30	
-#define TAILLE_PRENOM	30
-
-#define MAX_ISBN		9999
-#define ISBN_INVALIDE	-1
-#define SIMULATION      0
-
-#define EMPRUNT         1
-#define DISPONIBLE      0
-
-#define NUM_CHOIX_MENU_MIN	0
-#define NUM_CHOIX_MENU_MAX	6
-
-typedef struct
-{
-	int nb_livres;
-	int nb_livres_empruntes;
-} t_rapport;
-
-typedef struct
-{
-	// tableau de t_livre
-	t_livre livres[NB_GENRES][NB_LIVRES_MAX_RANGEE];
-	int nb_livres[NB_GENRES];
-	t_rapport rapport;
-} t_bibliotheque;
-
 // Fonction qui gere le menu et les interactions de l'utilisateur avec celui-ci
 void gestion_bibliotheque(t_bibliotheque * bibli);
 
