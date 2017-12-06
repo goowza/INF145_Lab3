@@ -20,7 +20,7 @@ void gestion_bibliotheque(t_bibliotheque * bibli)
 		afficher_menu();
 
 		// Gestion du menu.
-		choix_menu = demander_choix_menu(NUM_CHOIX_MENU_MIN,NUM_CHOIX_MENU_MAX);
+		choix_menu = demander_choix_menu(NUM_CHOIX_MENU_MIN, NUM_CHOIX_MENU_MAX);
 
 		switch (choix_menu)
 		{
@@ -29,8 +29,8 @@ void gestion_bibliotheque(t_bibliotheque * bibli)
 		case 3: modifier_livre(bibli); break;
 		case 4: retirer_livre(bibli); break;
 		case 5: generer_rapport(bibli);
-				afficher_rapport(&bibli->rapport);
-				break;
+			afficher_rapport(&bibli->rapport);
+			break;
 		case 6: sauvegarder_fichier(bibli); break;
 		case 0: break; // Quitter.
 		default: break;
@@ -157,6 +157,10 @@ void retirer_sautligne(char * chaine)
 //-----------------------------------------------------------------------------
 void initialiser_bibliotheque(t_bibliotheque * pBibli)
 {
+	t_biblio_chariot chariot;
+	t_biblio_robot robot;
+	t_biblio_machine machine;
+
 	int i, j;
 
 	// Initialisation des compteurs de livres a 0
@@ -165,9 +169,11 @@ void initialiser_bibliotheque(t_bibliotheque * pBibli)
 		pBibli->nb_livres[i] = 0;
 	}
 
+	pBibli->livres = (t_livre**)malloc(NB_GENRES * sizeof(t_livre*));
 	// Remplir tableau livres
 	for (i = 0; i < NB_GENRES; i++)
 	{
+		pBibli->livres[i] = (t_livre*)malloc(NB_LIVRES_MAX_RANGEE * sizeof(t_livre));
 		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
 		{
 			initialiser_livre(&pBibli->livres[i][j]);
@@ -176,6 +182,18 @@ void initialiser_bibliotheque(t_bibliotheque * pBibli)
 
 	// Initialiser le rapport a 0
 	initialiser_rapport(&(pBibli->rapport));
+
+	// initialiser le chariot
+	initialiser_chariot(&chariot, pBibli);
+	pBibli->chariot = chariot;
+
+	// initialiser le robot
+	initialiser_robot(&robot, pBibli);
+	pBibli->robot = robot;
+
+	// initialiser la machine
+	initialiser_machine(&machine, pBibli);
+	pBibli->machine = machine;
 }
 
 //-----------------------------------------------------------------------------
@@ -186,7 +204,7 @@ void initialiser_bibliotheque(t_bibliotheque * pBibli)
 // Parametres : aucun
 // Retour :		choix = valeur entree par l'utilisateur
 //-----------------------------------------------------------------------------
-int demander_choix_menu(int borne_inf,int borne_sup)
+int demander_choix_menu(int borne_inf, int borne_sup)
 {
 	int choix;
 	do
@@ -229,6 +247,7 @@ void initialiser_rapport(t_rapport * pRapport)
 {
 	pRapport->nb_livres = 0;
 	pRapport->nb_livres_empruntes = 0;
+	pRapport->nb_livres_chariot = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -487,6 +506,7 @@ void generer_rapport(t_bibliotheque *pBibli)
 	int i, j;
 	int nb_livres_empruntes = 0;
 	int nb_livres = 0;
+	int nb_livres_chariot = 0;
 
 	for (i = 0; i < NB_GENRES; i++)
 	{
@@ -503,9 +523,12 @@ void generer_rapport(t_bibliotheque *pBibli)
 		}
 	}
 
+	nb_livres_chariot = pBibli->chariot.liste_livres->nb_elements;
+
 	// actualisation des valeurs du rapport avec les nouvelles valeurs
 	pBibli->rapport.nb_livres_empruntes = nb_livres_empruntes;
 	pBibli->rapport.nb_livres = nb_livres;
+	pBibli->rapport.nb_livres_chariot = nb_livres_chariot;
 }
 
 //-----------------------------------------------------------------------------
@@ -519,6 +542,7 @@ void afficher_rapport(t_rapport *rapport)
 {
 	printf("#####################################\n");
 	printf("Nombre de livres : %d\n", rapport->nb_livres);
+	printf("Nombre de livres sur le chariot : %d\n", rapport->nb_livres_chariot);
 	printf("Nombre de livres empruntes : %d\n", rapport->nb_livres_empruntes);
 	printf("#####################################\n");
 }
@@ -548,11 +572,15 @@ void afficher_menu()
 	printf("=============\n");
 }
 
-void emprunter_livre_biblio(t_bibliotheque * pBibli,int isbn)
+void emprunter_livre_biblio(t_bibliotheque * pBibli, int isbn)
 {
 	/*t_livre * livre_emprunte;
 	livre_emprunte = rechercher_livre_isbn(pBibli,isbn);
 	livre_emprunte->bEmprunte = EMPRUNT;*/
-	rechercher_livre_isbn(pBibli,isbn)->bEmprunte = EMPRUNT;
+	rechercher_livre_isbn(pBibli, isbn)->bEmprunte = EMPRUNT;
 }
 
+void ramener_livre_biblio(t_bibliotheque * pBibli, int isbn)
+{
+	rechercher_livre_isbn(pBibli, isbn)->bEmprunte = DISPONIBLE;
+}
