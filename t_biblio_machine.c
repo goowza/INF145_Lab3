@@ -4,18 +4,25 @@
 #include <stdlib.h>
 #include "t_biblio_machine.h"
 
+void initialiser_machine(t_biblio_machine * machine, t_bibliotheque * pBibli)
+{
+	machine->ptr_bibli = pBibli;
+	machine->ptr_chariot = &pBibli->chariot;
+	machine->ptr_robot = &pBibli->robot;
+	machine->utilisateur = NULL;
+}
 
 void servir_etudiant(t_biblio_machine * machine, t_etudiant * etudiant)
 {
 	int choix_menu;
 
-	machine->utilisateur = *etudiant;
+	machine->utilisateur = etudiant;
 
 	do
 	{
 		system("cls");
 		afficher_menu_servir(etudiant);
-		choix_menu = demander_choix(NUM_CHOIX_SERVIR_MIN, NUM_CHOIX_SERVIR_MAX);
+		choix_menu = demander_choix_menu(NUM_CHOIX_SERVIR_MIN, NUM_CHOIX_SERVIR_MAX);
 
 		switch (choix_menu)
 		{
@@ -43,7 +50,7 @@ void chercher_livre(t_biblio_machine * machine)
 	t_livre * livre_trouve;
 
 	afficher_menu_chercher_livre();
-	choix_menu = demander_choix(NUM_CHOIX_RECHERCHE_MIN, NUM_CHOIX_RECHERCHE_MAX);
+	choix_menu = demander_choix_menu(NUM_CHOIX_RECHERCHE_MIN, NUM_CHOIX_RECHERCHE_MAX);
 	init_liste(&liste_resultats);
 
 	switch (choix_menu)
@@ -70,7 +77,7 @@ void chercher_livre(t_biblio_machine * machine)
 	}
 
 	printf("\nResultats de la recherche :\n");
-	afficher_liste_livres(&liste_resultats);
+	afficher_liste(liste_resultats);
 	super_pause();
 
 }
@@ -78,15 +85,19 @@ void chercher_livre(t_biblio_machine * machine)
 void retourner_livre(t_biblio_machine * machine)
 {
 	int choix_livre;
-	afficher_menu_retourner_livre(machine->utilisateur);
-	choix_livre = demander_choix(NUM_LIVRES_EMPRUNTE_MIN, NUM_LIVRES_EMPRUNTE_MAX);
-	if (machine->utilisateur.livres_empruntes[choix_livre - 1].isbn != ISBN_INVALIDE)
+	afficher_menu_retourner_livre(*machine->utilisateur);
+	choix_livre = demander_choix_menu(NUM_LIVRES_EMPRUNTE_MIN, NUM_LIVRES_EMPRUNTE_MAX);
+
+	if (machine->utilisateur->livres_empruntes[choix_livre - 1].isbn != ISBN_INVALIDE)
 	{
 		// Donner le livre au robot
 		machine->ptr_robot->livre_temp =
-			machine->utilisateur.livres_empruntes[choix_livre - 1];
+			machine->utilisateur->livres_empruntes[choix_livre - 1];
+		// Ramener le livre dans la bibliotheque
+		ramener_livre_biblio(machine->ptr_bibli,
+			machine->utilisateur->livres_empruntes[choix_livre - 1].isbn);
 		// Retirer le livre des emprunts de l'utilisateur
-		initialiser_livre(&machine->utilisateur.livres_empruntes[choix_livre - 1]);
+		initialiser_livre(&machine->utilisateur->livres_empruntes[choix_livre - 1]);
 	}
 	else
 	{
@@ -138,17 +149,45 @@ void afficher_menu_retourner_livre(t_etudiant etudiant)
 	printf("=================================\n");
 }
 
-int demander_choix(int borne_inf, int borne_sup)
-{
-	int choix;
-	do
-	{
-		scanf("%d", &choix);
-	} while (choix > borne_sup || choix < borne_inf);
+//int demander_choix(int borne_inf, int borne_sup)
+//{
+//	int choix;
+//	do
+//	{
+//		scanf("%d", &choix);
+//	} while (choix > borne_sup || choix < borne_inf);
+//
+//	return choix;
+//}
 
-	return choix;
+int apporter_livre_machine(t_biblio_machine * machine, int isbn)
+{
+	int resultat;
+	t_livre livre_apporte;
+	livre_apporte = apporter_livre(machine->ptr_chariot, isbn);
+	if (livre_apporte.isbn != ISBN_INVALIDE)
+	{
+		// remettre le livre a l'etudiant
+		resultat = emprunter_livre_etudiant(machine->utilisateur, livre_apporte);
+		// enlever le livre de la bibliotheque
+		emprunter_livre_biblio(machine->ptr_bibli, isbn);
+	}
+	else
+	{
+		resultat = ECHEC;
+	}
+	return resultat;
 }
 
+void voir_dossier(t_biblio_machine machine)
+{
+	printf("========================= Dossier =========================\n");
+	printf("Annee inscription : %d\n", machine.utilisateur->annee_inscription);
+	printf("Identifiant : %d\n", machine.utilisateur->ID);
+	printf("Emprunts : \n");
+	afficher_emprunts(*machine.utilisateur);
+	printf("===========================================================\n");
+}
 
 //t_liste * rechercher_isbn(t_bibliotheque * pBibli, int isbn_demande)
 //{
@@ -167,20 +206,20 @@ int demander_choix(int borne_inf, int borne_sup)
 //	}
 //	return &liste_res;	
 //}
-
-void afficher_liste_livres(t_liste * liste)
-{
-	t_noeud * curseur = liste->tete;
-	int compteur = 1;
-
-	if (!liste_vide(liste))
-	{
-		while (curseur != NULL)
-		{
-
-			afficher_info_livre(&curseur->donnee);
-			curseur = curseur->suivant;
-			compteur++;
-		}
-	}
-}
+//
+//void afficher_liste_livres(t_liste * liste)
+//{
+//	t_noeud * curseur = liste->tete;
+//	int compteur = 1;
+//
+//	if (!liste_vide(liste))
+//	{
+//		while (curseur != NULL)
+//		{
+//
+//			afficher_info_livre(&curseur->donnee);
+//			curseur = curseur->suivant;
+//			compteur++;
+//		}
+//	}
+//}

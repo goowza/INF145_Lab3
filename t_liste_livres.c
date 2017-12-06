@@ -20,7 +20,7 @@ int liste_vide(t_liste * liste)
 int ajouter_debut(t_liste * liste, t_element_liste element)
 {
 	int resultat;
-	
+
 	// pointeur vers l'element a ajouter
 	t_noeud_liste * nouveau_noeud = (t_noeud_liste*)malloc(sizeof(t_noeud_liste));
 
@@ -260,16 +260,17 @@ t_element_liste enlever_liste_indice(t_liste * liste, int indice)
 //	return resultat;
 //}
 
-void afficher_liste(t_liste * liste)
+void afficher_liste(t_liste liste)
 {
-	t_noeud_liste * curseur = liste->tete;
+	t_noeud_liste * curseur = liste.tete;
 	int compteur = 1;
 
-	if (!liste_vide(liste))
+	if (!liste_vide(&liste))
 	{
 		while (curseur != NULL)
 		{
-			printf("[#%d : %d]\n", compteur, curseur->donnee.isbn);
+			afficher_info_livre(&curseur->donnee);
+			//printf("[#%d : %d]\n", compteur, curseur->donnee.isbn);
 			//printf("[#%d : %d]\n", compteur,curseur->donnee);
 			curseur = curseur->suivant;
 			compteur++;

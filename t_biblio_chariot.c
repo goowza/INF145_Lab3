@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include "t_biblio_chariot.h"
 
-void initialiser_chariot(t_biblio_chariot * chariot,t_bibliotheque * pBibli)
+void initialiser_chariot(t_biblio_chariot * chariot, t_bibliotheque * pBibli)
 {
-	init_liste(chariot->liste_livres);
+	chariot->liste_livres = NULL;
 	chariot->pBibli = pBibli;
 	chariot->position = POS_KIOSQUE;
 	chariot->utilisateur = NULL;
@@ -54,7 +54,7 @@ int ajouter_livre_chariot(t_biblio_chariot * chariot, t_livre livre)
 				else if (curseur->suivant->donnee.isbn > livre.isbn)
 				{
 					btrouve = LIVRE_TROUVE;
-					resultat = ajouter_liste_indice(chariot->liste_livres, livre, indice+1);
+					resultat = ajouter_liste_indice(chariot->liste_livres, livre, indice + 1);
 				}
 				else
 				{
@@ -63,11 +63,11 @@ int ajouter_livre_chariot(t_biblio_chariot * chariot, t_livre livre)
 				}
 			}
 		}
-		emprunter_livre_biblio(chariot->pBibli,livre.isbn);
+		//emprunter_livre_biblio(chariot->pBibli, livre.isbn);
 	}
 	else
 		resultat = ECHEC;
-	
+
 	return resultat;
 }
 
@@ -90,7 +90,7 @@ int chercher_indice_livre(t_biblio_chariot * chariot, int isbn)
 		}
 		else
 		{
-			indice_trouve = INDICE_INVALIDE;
+			indice_trouve = INVALIDE;
 			btrouve = LIVRE_TROUVE;
 		}
 	}
@@ -105,7 +105,7 @@ t_livre retirer_livre_chariot(t_biblio_chariot * chariot, int isbn)
 	initialiser_livre(&livre_retire);
 	indice_livre = chercher_indice_livre(chariot, isbn);
 
-	if (indice_livre != INDICE_INVALIDE)
+	if (indice_livre != INVALIDE)
 		livre_retire = enlever_liste_indice(chariot->liste_livres, indice_livre);
 	else
 		printf("Erreur : livre inexistant\n");
@@ -122,16 +122,17 @@ void emprunter_livre_chariot(t_biblio_chariot * chariot)
 	printf("Entrez isbn : \n");
 	scanf("%d", &isbn_cherche);
 	indice_livre_trouve = chercher_indice_livre(chariot, isbn_cherche);
-	if (indice_livre_trouve != INDICE_INVALIDE)
+	if (indice_livre_trouve != INVALIDE)
 	{
 		printf("Livre trouve ! Voulez vous l'emprunter ?\n");
 		printf("1 - OUI || 0 - NON\n");
 		choix_emprunt = demander_choix_menu(NE_PAS_EMPRUNTER_LIVRE, EMPRUNTER_LIVRE);
-		if (choix_emprunt == EMPRUNTER_LIVRE);
+		if (choix_emprunt == EMPRUNTER_LIVRE)
 		{
 			livre_emprunte = retirer_livre_chariot(chariot, isbn_cherche);
 			livre_emprunte.bEmprunte = EMPRUNT;
 			emprunter_livre_etudiant(chariot->utilisateur, livre_emprunte);
+			emprunter_livre_biblio(chariot->pBibli, isbn_cherche);
 		}
 	}
 	else
@@ -151,11 +152,11 @@ void retourner_livres(t_biblio_chariot * chariot)
 
 	// On vide la liste du chariot et on modifie les indicateurs d'emprunt 
 	// des livres de la bibliotheque corespondants
-	while(!liste_vide(chariot->liste_livres))
+	while (!liste_vide(chariot->liste_livres))
 	{
 		livre_retourne = enlever_debut(chariot->liste_livres);
 
-		ptr_livre_biblio = rechercher_livre_isbn(chariot->pBibli,livre_retourne.isbn);
+		ptr_livre_biblio = rechercher_livre_isbn(chariot->pBibli, livre_retourne.isbn);
 		ptr_livre_biblio->bEmprunte = DISPONIBLE;
 	}
 }
@@ -174,21 +175,21 @@ t_livre apporter_livre(t_biblio_chariot * chariot, int isbn)
 	initialiser_livre(&livre_apporte);
 
 	// si le numero isbn existe
-	if(rechercher_livre_isbn(chariot->pBibli,isbn) != NULL)
+	if (rechercher_livre_isbn(chariot->pBibli, isbn) != NULL)
 	{
-		indice_livre_chariot = chercher_indice_livre(chariot,isbn);
+		indice_livre_chariot = chercher_indice_livre(chariot, isbn);
 		// si le livre est present dans la liste du chariot
-		if(indice_livre_chariot != INDICE_INVALIDE)
+		if (indice_livre_chariot != INVALIDE)
 		{
 			// on enleve ce livre du chariot et on le stock dans livre_apporte
-			livre_apporte = enlever_liste_indice(chariot->liste_livres,indice_livre_chariot);
+			livre_apporte = enlever_liste_indice(chariot->liste_livres, indice_livre_chariot);
 		}
 		else
 		{
 			// on envoie le chariot chercher le livre dans la bibliotheque
 			chariot->position = POS_DEPLACEMENT;
-			livre_apporte = *rechercher_livre_isbn(chariot->pBibli,isbn);
-			emprunter_livre_biblio(chariot->pBibli,isbn);
+			livre_apporte = *rechercher_livre_isbn(chariot->pBibli, isbn);
+			//emprunter_livre_biblio(chariot->pBibli, isbn);
 			chariot->position = POS_KIOSQUE;
 		}
 	}

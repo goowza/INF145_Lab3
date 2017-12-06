@@ -24,7 +24,10 @@ t_element_liste enlever_liste_indice(t_liste * liste, int indice);
 
 //int ajouter_croissant(t_liste * liste, t_element_liste element);
 
-void afficher_liste(t_liste * liste);
+void afficher_liste(t_liste liste);
 
 
 #endif
+
+
+
