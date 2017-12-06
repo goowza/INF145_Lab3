@@ -4,13 +4,16 @@
 #define _T_BIBLIOTHEQUE__
 
 #include "structs.h"
+#include "t_biblio_chariot.h"
+#include "t_biblio_machine.h"
+#include "t_biblio_robot.h"
 
 // Fonction qui gere le menu et les interactions de l'utilisateur avec celui-ci
 void gestion_bibliotheque(t_bibliotheque * bibli);
 
 // Cette fonction permet de saisir le choix entre par l'utilisateur et de
 // verifier sa validite.
-int demander_choix_menu(int borne_inf,int borne_sup);
+int demander_choix_menu(int borne_inf, int borne_sup);
 
 // Cette fonction initialise la bibliotheque en mettant tout les compteurs du 
 // tableau nb_livres a 0, en remplissant toutes les cases du tableau 2D
@@ -76,6 +79,14 @@ void retirer_livre(t_bibliotheque * pBibli);
 
 t_livre * rechercher_livre_isbn(t_bibliotheque * pBibli, int isbn_demande);
 
-void emprunter_livre_biblio(t_bibliotheque * pBibli,int isbn);
+// Cette fonction change la valeur du bemprunte du livre a EMPRUNT 
+// dans la bibliotheque
+void emprunter_livre_biblio(t_bibliotheque * pBibli, int isbn);
+
+// Cette fonction change la valeur du bemprunte du livre a DISPONIBLE 
+// dans la bibliotheque
+void ramener_livre_biblio(t_bibliotheque * pBibli, int isbn);
 
 #endif
+
+
