@@ -138,43 +138,51 @@ int main()
 
 	// 1
 	printf("Initialisation de la bibliotheque et du chariot...\n");
+	chariot.liste_livres = &liste_livres_chariot;
+	bibli.chariot = chariot;
 	initialiser_bibliotheque(&bibli);
 
-	chariot.liste_livres = &liste_livres_chariot;
-	initialiser_chariot(&chariot,&bibli);
 	init_etudiant(&utilisateur_chariot);
-	chariot.utilisateur = &utilisateur_chariot;
+	bibli.chariot.utilisateur = &utilisateur_chariot;
 
+	
 	super_pause();
 	system("cls");
-	
+
 	// 2
 	gestion_bibliotheque(&bibli);
 
 	// 3 et 4
 	printf("Apporter livre1...\n");
-	livre1 = apporter_livre(&chariot,1234);
+	livre1 = apporter_livre(&bibli.chariot, 1234);
 	printf("Apporter livre2...\n");
-	livre2 = apporter_livre(&chariot,369);
+	livre2 = apporter_livre(&bibli.chariot, 369);
 	printf("Apporter livre3...\n");
-	livre3 = apporter_livre(&chariot,555);
+	livre3 = apporter_livre(&bibli.chariot, 555);
 	super_pause();
 	system("cls");
 
 	// 5
 	printf("Ajout livre1 dans le chariot...\n");
-	ajouter_livre_chariot(&chariot,livre1);
+	ajouter_livre_chariot(&bibli.chariot, livre1);
 	printf("Ajout livre2 dans le chariot...\n");
-	ajouter_livre_chariot(&chariot,livre2);
+	ajouter_livre_chariot(&bibli.chariot, livre2);
 	printf("Ajout livre3 dans le chariot...\n");
-	ajouter_livre_chariot(&chariot,livre3);
+	ajouter_livre_chariot(&bibli.chariot, livre3);
+	super_pause();
+
+	printf("Liste chariot : \n");
+	afficher_liste(*bibli.chariot.liste_livres);
 	super_pause();
 	system("cls");
 
 	// 6
-	emprunter_livre_chariot(&chariot);
+	emprunter_livre_chariot(&bibli.chariot);
 	printf("Emprunts de l'utilisateur : \n");
-	afficher_emprunts(*chariot.utilisateur);
+	afficher_emprunts(*bibli.chariot.utilisateur);
+	super_pause();
+	printf("Liste chariot : \n");
+	afficher_liste(*bibli.chariot.liste_livres);
 	super_pause();
 	system("cls");
 
@@ -185,7 +193,7 @@ int main()
 
 	// 8
 	printf("\nRetour des livres dans la bibliotheque...\n");
-	retourner_livres(&chariot);
+	retourner_livres(&bibli.chariot);
 	super_pause();
 
 	// 9
