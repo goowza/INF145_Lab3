@@ -30,18 +30,18 @@
 #define NUM_LIVRES_EMPRUNTE_MAX		5
 
 // Chariot
-#define EMPRUNTER_LIVRE			1
-#define NE_PAS_EMPRUNTER_LIVRE	0
-
+#define EMPRUNTER_LIVRE				1
+#define NE_PAS_EMPRUNTER_LIVRE		0
+#define LIVRE_TROUVE				1
 
 // General
 #define INVALIDE	-1
-#define SUCCES	1
-#define ECHEC	0
+#define SUCCES		1
+#define ECHEC		0
 
 typedef enum { AUCUN = 0, FICTION = 1, HISTOIRE = 2, SCIENCE = 3, ENFANTS = 4, INFORMATIQUE = 5 } t_genre;
 
-typedef enum {POS_KIOSQUE, POS_DEPLACEMENT}t_position_chariot;
+typedef enum { POS_KIOSQUE, POS_DEPLACEMENT }t_position_chariot;
 
 typedef struct
 {
@@ -97,25 +97,26 @@ typedef struct
 
 //=============================================================================
 
-typedef struct
+//========================= Pile ==============================================
+//changer cette déclaration pour obtenir des piles d'un autre type
+typedef t_livre t_element_pile;
+
+typedef struct t_noeud_pile
 {
-	int nb_livres;
-	int nb_livres_empruntes;
-} t_rapport;
+	t_element_pile donnee;
+	struct t_noeud_pile * suivant;
+}t_noeud_pile;
 
 typedef struct
 {
-	// tableau de t_livre
-	t_livre livres[NB_GENRES][NB_LIVRES_MAX_RANGEE];
-	int nb_livres[NB_GENRES];
-	t_rapport rapport;
+	t_noeud_pile * sommet;
+	int nb_elements;
+}t_pile;
 
-	/*t_biblio_machine machine;
-	t_biblio_robot robot;
-	t_biblio_chariot chariot;
-	t_file file_etudiants;*/
-	
-} t_bibliotheque;
+//=============================================================================
+
+struct biblio;
+typedef struct biblio t_bibliotheque;
 
 // chariot
 typedef struct
@@ -131,6 +132,7 @@ typedef struct
 {
 	t_biblio_chariot * ptr_chariot;
 	t_livre livre_temp;
+	t_pile * pile_livres;
 }t_biblio_robot;
 
 // Kiosque
@@ -139,7 +141,32 @@ typedef struct
 	t_bibliotheque * ptr_bibli;
 	t_biblio_robot * ptr_robot;
 	t_biblio_chariot * ptr_chariot;
-	t_etudiant utilisateur;
+	t_etudiant * utilisateur;
 }t_biblio_machine;
 
+typedef struct
+{
+	int nb_livres;
+	int nb_livres_empruntes;
+	int nb_livres_chariot;
+} t_rapport;
+
+
+struct biblio
+{
+	// tableau de t_livre dynamique
+	t_livre ** livres;
+	int nb_livres[NB_GENRES];
+	t_rapport rapport;
+
+	t_biblio_machine machine;
+	t_biblio_robot robot;
+	t_biblio_chariot chariot;
+	t_file file_etudiants;
+};
+
 #endif
+
+
+
+
