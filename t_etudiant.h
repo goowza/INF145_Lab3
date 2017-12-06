@@ -8,7 +8,8 @@
 
 void init_etudiant(t_etudiant * etudiant);
 
-void emprunter_livre_etudiant(t_etudiant * etudiant, t_livre livre);
+int emprunter_livre_etudiant(t_etudiant * etudiant, t_livre livre);
 
 void afficher_emprunts(t_etudiant etudiant);
 #endif
+
