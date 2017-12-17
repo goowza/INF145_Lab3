@@ -308,6 +308,9 @@ void simuler_robot(t_bibliotheque * bibli)
 	afficher_liste(*bibli->chariot.liste_livres);
 	printf("pile robot : \n");
 	afficher_pile(bibli->robot.pile_livres);
+	printf("Rapport : \n");
+	generer_rapport(bibli);
+	afficher_rapport(&bibli->rapport);
 
 	printf("\n");
 	super_pause();
@@ -426,7 +429,7 @@ void simuler_bibliotheque(t_bibliotheque * bibli)
 
 	while (bibli->taille == NB_LIVRES_MAX_RANGEE)
 	{
-		printf("Ajoutez des livres jusqu'a ce qu'une des"
+		printf("Ajoutez des livres jusqu'a ce qu'une des "
 			"etageres soit pleine : \n");
 		ajouter_livre(bibli);
 		system("cls");
