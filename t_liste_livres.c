@@ -1,8 +1,39 @@
+// ========================= MODULE T_LISTE_LIVRES ============================
+// Auteurs : Paul Meis (MEIP12039708) 
+//			(paul.meis.1@ens.etsmtl.ca)
+//			 Hervé Neugang (NEUR14027708) 
+//			(rodrigue-herve.neugang-tchientche.1@ens.etsmtl.ca)
+//
+//  Date : decembre 2017
+//
+//  Description : 
+//  Ce module permet de gerer une liste de livres via differentes fonctions.
+//
+//  Le module permet de :
+//	- Initialiser une liste de livres
+//  - Tester si une liste est vide.
+//	- Ajouter un livre au debut de la liste.
+//	- Ajouter un livre a la fin de la liste.
+//	- Enlever un livre au debut de la liste.
+//	- Enlever un livre a la fin de la liste.
+//	- Ajouter un livre a une position demandee de la liste.
+//	- Enelever un livre a une position demandee de la liste.
+//	- Afficher la Liste.
+//  Attention : ce module gere uniquement des listes de t_livres
+//=============================================================================
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "t_liste_livres.h"
 
-
+//-----------------------------------------------------------------------------
+//							Fonction init_liste
+// Cette fonction permet d'initialiser une une liste, la liste est vide et sa 
+// tete pointe vers NULL.
+//
+// Parametres : liste = la liste a initialiser
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void init_liste(t_liste * liste)
 {
 	if (liste != NULL)
@@ -12,12 +43,30 @@ void init_liste(t_liste * liste)
 	}
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction liste_vide
+// Cette fonction renvoie si une liste est vide ou non. 
+// (La fonction renvoie 0 si la liste n'est pas vide)
+//
+// Parametres : liste = la liste a tester
+// Retour :		resultat du test
+//-----------------------------------------------------------------------------
 int liste_vide(t_liste * liste)
 {
 	return(liste->nb_elements == 0);
 }
 
-int ajouter_debut(t_liste * liste, t_element_liste element)
+
+//-----------------------------------------------------------------------------
+//							Fonction ajout_debut_liste
+// Cette fonction ajoute un element au debut de la liste.
+// La fonction retourne SUCCES si l'element a bien ete ajoute, ECHEC sinon.
+//
+// Parametres : liste = la liste ou ajouter l'element
+//				element = element a ajouter a la liste
+// Retour :		resultat = resultat de l'execution de la fonction
+//-----------------------------------------------------------------------------
+int ajout_debut_liste(t_liste * liste, t_element_liste element)
 {
 	int resultat;
 
@@ -25,7 +74,7 @@ int ajouter_debut(t_liste * liste, t_element_liste element)
 	t_noeud_liste * nouveau_noeud = (t_noeud_liste*)malloc(sizeof(t_noeud_liste));
 
 	// Test du malloc (si le malloc n'a pas ete correctement execute, 
-	// la fonction ne fait rien
+	// la fonction ne fait rien)
 	if (nouveau_noeud != NULL)
 	{
 		// mise a jour des liens
@@ -43,7 +92,16 @@ int ajouter_debut(t_liste * liste, t_element_liste element)
 	return resultat;
 }
 
-int ajouter_fin(t_liste * liste, t_element_liste element)
+//-----------------------------------------------------------------------------
+//							Fonction ajout_fin_liste
+// Cette fonction ajoute un element a la fin de la liste.
+// La fonction retourne SUCCES si l'element a bien ete ajoute, ECHEC sinon.
+//
+// Parametres : liste = la liste ou ajouter l'element
+//				element = element a ajouter a la liste
+// Retour :		resultat = resultat de l'execution de la fonction
+//-----------------------------------------------------------------------------
+int ajout_fin_liste(t_liste * liste, t_element_liste element)
 {
 	int resultat;
 	// pointeur vers l'element a ajouter
@@ -81,7 +139,16 @@ int ajouter_fin(t_liste * liste, t_element_liste element)
 	return resultat;
 }
 
-t_element_liste enlever_debut(t_liste * liste)
+//-----------------------------------------------------------------------------
+//							Fonction enlever_debut_liste
+// Cette fonction enleve un element au debut de la liste. La fonction retourne
+// une copie de l'element retire. Si la liste est vide, on retourne un livre 
+// initialise.
+//
+// Parametres : liste = la liste ou enlever l'element
+// Retour :		element_retire = copie de l'element enleve de la liste
+//-----------------------------------------------------------------------------
+t_element_liste enlever_debut_liste(t_liste * liste)
 {
 	// element enleve de la liste
 	t_element_liste element_retire;
@@ -107,7 +174,16 @@ t_element_liste enlever_debut(t_liste * liste)
 	return element_retire;
 }
 
-t_element_liste enlever_fin(t_liste * liste)
+//-----------------------------------------------------------------------------
+//							Fonction enlever_fin_liste
+// Cette fonction enleve un element a la fin de la liste. La fonction retourne
+// une copie de l'element retire. Si la liste est vide, on retourne un livre 
+// initialise.
+//
+// Parametres : liste = la liste ou enlever l'element
+// Retour :		element_retire = copie de l'element enleve de la liste
+//-----------------------------------------------------------------------------
+t_element_liste enlever_fin_liste(t_liste * liste)
 {
 	// element enleve de la liste
 	t_element_liste element_retire;
@@ -135,14 +211,24 @@ t_element_liste enlever_fin(t_liste * liste)
 
 		// mise a jour nombre d'elements total de la liste
 		liste->nb_elements--;
-
 	}
 	return element_retire;
 }
 
-
-// Premier element de la liste = numero 1 (ne commence pas a 0)
-// Ajoute le livre juste avant l'element precise par l'indice
+//-----------------------------------------------------------------------------
+//							Fonction ajouter_liste_indice
+// Cette fonction ajoute un element a une position donnee de la liste. 
+// La fonction retourne SUCCES si l'element a bien ete ajoute, ECHEC sinon.
+// Si la position entree est inferieure a 1, on ajoute au debut de la liste.
+// Si la position entree est superieure au nombre d'elements de la liste, on 
+// ajoute a la fin de la liste.
+// Le premier element de la liste est a l'indice 1.
+//
+// Parametres : liste = la liste ou ajouter l'element
+//				element = element a ajouter a la liste
+//				indice = position ou ajouter l'element
+// Retour :		resultat = resultat de l'execution de la fonction
+//-----------------------------------------------------------------------------
 int ajouter_liste_indice(t_liste * liste, t_element_liste element, int indice)
 {
 	int i;
@@ -158,9 +244,9 @@ int ajouter_liste_indice(t_liste * liste, t_element_liste element, int indice)
 	{
 		if (!liste_vide(liste))
 		{
-			if (indice == 1)
+			if (indice <= 1)
 			{
-				ajouter_debut(liste, element);
+				ajout_debut_liste(liste, element);
 			}
 			else if ((indice <= liste->nb_elements) && indice > 1)
 			{
@@ -180,12 +266,12 @@ int ajouter_liste_indice(t_liste * liste, t_element_liste element, int indice)
 
 			else if (indice > liste->nb_elements)
 			{
-				ajouter_fin(liste, element);
+				ajout_fin_liste(liste, element);
 			}
 		}
 		else
 		{
-			ajouter_debut(liste, element);
+			ajout_debut_liste(liste, element);
 		}
 		resultat = SUCCES;
 	}
@@ -196,7 +282,20 @@ int ajouter_liste_indice(t_liste * liste, t_element_liste element, int indice)
 	return resultat;
 }
 
-// enleve l'element a la position precisee par l'indice
+//-----------------------------------------------------------------------------
+//							Fonction enlever_liste_indice
+// Cette fonction enleve un element a une position donnee de la liste. 
+// La fonction retourne une copie de l'element retire. Si la liste est vide,
+// on retourne un livre initialise.
+// Si la position entree est inferieure a 1, on enleve au debut de la liste.
+// Si la position entree est superieure au nombre d'elements de la liste, on 
+// enleve a la fin de la liste.
+// Le premier element de la liste est a l'indice 1.
+//
+// Parametres : liste = la liste ou enlever l'element
+//				indice = position de l'element a enlever
+// Retour :		element_retire = copie de l'element retire de la liste
+//-----------------------------------------------------------------------------
 t_element_liste enlever_liste_indice(t_liste * liste, int indice)
 {
 	int i;
@@ -220,7 +319,7 @@ t_element_liste enlever_liste_indice(t_liste * liste, int indice)
 		{
 			if (indice == 1)
 			{
-				element_retire = enlever_debut(liste);
+				element_retire = enlever_debut_liste(liste);
 			}
 			else if ((indice < liste->nb_elements) && (indice > 1))
 			{
@@ -239,27 +338,21 @@ t_element_liste enlever_liste_indice(t_liste * liste, int indice)
 			}
 			else if (indice >= liste->nb_elements)
 			{
-				element_retire = enlever_fin(liste);
+				element_retire = enlever_fin_liste(liste);
 			}
 		}
 	}
 	return element_retire;
 }
 
-//int ajouter_croissant(t_liste * liste, t_element_liste element)
-//{
-//	int resultat;
-//	t_noeud_liste * curseur = liste->tete;
-//	int indice = 1;
-//	while (curseur->suivant->donnee.isbn < element.isbn)
-//	{
-//		curseur = curseur->suivant;
-//		indice++;
-//	}
-//	resultat = ajouter_liste_indice(liste, element, indice);
-//	return resultat;
-//}
-
+//-----------------------------------------------------------------------------
+//							Fonction afficher_liste
+// Cette fonction affiche tous les elements d'une liste en partant de l'element
+// a la position 1.
+//
+// Parametres : liste = la liste a afficher
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void afficher_liste(t_liste liste)
 {
 	t_noeud_liste * curseur = liste.tete;
@@ -270,8 +363,6 @@ void afficher_liste(t_liste liste)
 		while (curseur != NULL)
 		{
 			afficher_info_livre(&curseur->donnee);
-			//printf("[#%d : %d]\n", compteur, curseur->donnee.isbn);
-			//printf("[#%d : %d]\n", compteur,curseur->donnee);
 			curseur = curseur->suivant;
 			compteur++;
 		}
