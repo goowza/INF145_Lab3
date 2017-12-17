@@ -1,3 +1,39 @@
+// ========================== MODULE T_BIBLIOTHEQUE ===========================
+//  Auteur:		Yannick Roy
+//
+//  Modifié par : Paul Meis (MEIP12039708) 
+//				 (paul.meis.1@ens.etsmtl.ca)
+//				  Hervé Neugang (NEUR14027708) 
+//				 (rodrigue-herve.neugang-tchientche.1@ens.etsmtl.ca)
+
+//  Date : decembre 2017
+//
+//  Description : 
+//  Ce module permet d'effectuer plusieurs services relatifs a une bibliotheque.
+//  Une bibliotheque contient un tableau 2D dynamique de livres ainsi qu'un 
+//  robot, un chariot, un kiosque et une file d'etudiants.
+//
+//  Le module permet de :
+//	- Initialiser la bibliotheque en creant son tableau de livre, son robot, 
+//	  son chariot,...
+//  - Gerer la bibliotheque via un menu offrant les services suivants :  
+//		1) Afficher Bibliotheque : Affiche tous les livres de la bibliotheque. 
+//		2) Lire Fichier Bibliotheque : Initialise la bibliotheque à partir d'un 
+//									   fichier texte.
+//		3) Modifier Livre : Permet de modifier les informations (champs) 
+//							d'un livre. 							  
+//		4) Retirer Livre : Permet de retirer un livre de la bibliotheque.
+//		5) Generer Rapport : Genere un rapport sur le nombre de livres et 
+//							 emprunts. 
+//		6) Sauvegarder Bibliotheque : Sauvegarde la bibliotheque dans un fichier 
+//									  texte. 
+//		7) Quitter : Permet de quitter l'application.
+//	- Agrandir l'etagere : doubler la taille de la bibliotheque afin de pouvoir
+//	  stocker plus de livres
+//	- Servir le premier etudiant de sa file d'attente grace au kiosque 
+//	  intelligent de la bibliotheque.
+//=============================================================================
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
@@ -7,6 +43,32 @@
 #include <time.h>
 #include "t_bibliotheque.h"
 
+// ==================== Declaration des fonctions privees =====================
+
+// Cette fonction permet de sauvegarder la bibliotheque actuelle dans un
+// nouveau fichier texte nomme "sauvegarde_bibliotheque.txt".
+void sauvegarder_fichier(t_bibliotheque * pBibli);
+
+// Cette fonction permet de compter le nombre de livres de la bibliotheque
+// passee en argument.
+int compter_livres(t_bibliotheque * pBibli);
+
+// Cette fonction permet d'afficher le menu de la bibliotheque dans la console.
+void afficher_menu();
+
+// Cette fonction permet de retirer un livre de la bibliotheque definitivement
+void retirer_livre(t_bibliotheque * pBibli);
+
+//=============================================================================
+
+//-----------------------------------------------------------------------------
+//							Fonction gestion_bibliotheque
+// Cette fonction permet de gerer le fonctionnement d'un menu qui offre
+// differents services a l'utilisateur afin de gerer la bibliotheque.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque a gerer
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void gestion_bibliotheque(t_bibliotheque * bibli)
 {
 	// Déclaration des variables.
@@ -100,6 +162,14 @@ void lire_fichier(t_bibliotheque * pBibli)
 			retirer_sautligne(prenom);
 			retirer_sautligne(nom);
 
+		
+			// Si l'etagere est remplie, on double sa taille avant d'ajouter 
+			// un livre
+			if (pBibli->nb_livres[genre] == pBibli->taille)
+			{
+				agrandir_etagere(pBibli);
+			}
+
 			// Mise a jour d'un livre de la bibliotheque
 			pBibli->livres[genre][pBibli->nb_livres[genre]].genre = genre;
 			strcpy(pBibli->livres[genre][pBibli->nb_livres[genre]].titre, titre);
@@ -147,8 +217,8 @@ void retirer_sautligne(char * chaine)
 //-----------------------------------------------------------------------------
 //							Fonction Initialiser_bibliotheque
 // Cette fonction initialise la bibliotheque en mettant tout les compteurs du 
-// tableau nb_livres a 0, en remplissant toutes les cases du tableau 2D
-// contenant les livres avec des livres initialises par la fonction 
+// tableau nb_livres a 0, en generant le tableau de livres et en remplissant 
+// toutes ses case avec des livres initialises par la fonction 
 // initialiser_livre et en initialisant le rapport avec la fonction 
 // initialiser_rapport
 //
@@ -163,6 +233,8 @@ void initialiser_bibliotheque(t_bibliotheque * pBibli)
 
 	int i, j;
 
+	pBibli->taille = NB_LIVRES_MAX_RANGEE;
+
 	// Initialisation des compteurs de livres a 0
 	for (i = 0; i < NB_GENRES; i++)
 	{
@@ -170,13 +242,23 @@ void initialiser_bibliotheque(t_bibliotheque * pBibli)
 	}
 
 	pBibli->livres = (t_livre**)malloc(NB_GENRES * sizeof(t_livre*));
-	// Remplir tableau livres
-	for (i = 0; i < NB_GENRES; i++)
+
+	// Test de fonctionnement du malloc
+	if (pBibli->livres != NULL)
 	{
-		pBibli->livres[i] = (t_livre*)malloc(NB_LIVRES_MAX_RANGEE * sizeof(t_livre));
-		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
+		// Remplir tableau livres
+		for (i = 0; i < NB_GENRES; i++)
 		{
-			initialiser_livre(&pBibli->livres[i][j]);
+			pBibli->livres[i] = (t_livre*)malloc(NB_LIVRES_MAX_RANGEE * sizeof(t_livre));
+
+			// Test de fonctionnement du malloc
+			if (pBibli->livres[i] != NULL)
+			{
+				for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
+				{
+					initialiser_livre(&pBibli->livres[i][j]);
+				}
+			}
 		}
 	}
 
@@ -201,7 +283,10 @@ void initialiser_bibliotheque(t_bibliotheque * pBibli)
 // Cette fonction permet de saisir le choix entre par l'utilisateur et de
 // verifier sa validite.
 //
-// Parametres : aucun
+// Parametres : borne_inf : borne inferieure de l'intervalle dans lequel se
+//							trouve le choix
+//				borne_sup : borne superieure de l'intervalle dans lequel se
+//							trouve le choix
 // Retour :		choix = valeur entree par l'utilisateur
 //-----------------------------------------------------------------------------
 int demander_choix_menu(int borne_inf, int borne_sup)
@@ -237,8 +322,8 @@ void initialiser_livre(t_livre * pLivre)
 
 //-----------------------------------------------------------------------------
 //							Fonction Initialiser_rapport
-// Cette fonction initialise le rapport en mettant le nombre de livres total et
-// le nombre de livres empruntes a 0
+// Cette fonction initialise le rapport en mettant le nombre de livres total,
+// le nombre de livres empruntes a 0 et le nombre de livres sur le chariot a 0.
 //
 // Parametres : pRapport = pointeur vers le t_rapport que l'on veut initialiser
 // Retour :		aucun
@@ -290,7 +375,7 @@ t_livre * rechercher_livre_isbn(t_bibliotheque * pBibli, int isbn_demande)
 	int i, j;
 	for (i = 0; i < NB_GENRES; i++)
 	{
-		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
+		for (j = 0; j < pBibli->taille; j++)
 		{
 			if (pBibli->livres[i][j].isbn == isbn_demande)
 			{
@@ -422,7 +507,7 @@ void sauvegarder_fichier(t_bibliotheque * pBibli)
 
 		for (i = 0; i < NB_GENRES; i++)
 		{
-			for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
+			for (j = 0; j < pBibli->taille; j++)
 			{
 				if (pBibli->livres[i][j].isbn != ISBN_INVALIDE)
 				{
@@ -439,7 +524,6 @@ void sauvegarder_fichier(t_bibliotheque * pBibli)
 		printf("Bibliotheque sauvegardee\n");
 		fclose(sauvegarde);
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -457,7 +541,7 @@ int compter_livres(t_bibliotheque * pBibli)
 
 	for (i = 0; i < NB_GENRES; i++)
 	{
-		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
+		for (j = 0; j < pBibli->taille; j++)
 		{
 			if (pBibli->livres[i][j].isbn != ISBN_INVALIDE)
 			{
@@ -481,7 +565,7 @@ void afficher_bibliotheque(t_bibliotheque * pBibli)
 	int i, j;
 	for (i = 0; i < NB_GENRES; i++)
 	{
-		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
+		for (j = 0; j < pBibli->taille; j++)
 		{
 			if (pBibli->livres[i][j].isbn != ISBN_INVALIDE)
 			{
@@ -510,7 +594,7 @@ void generer_rapport(t_bibliotheque *pBibli)
 
 	for (i = 0; i < NB_GENRES; i++)
 	{
-		for (j = 0; j < NB_LIVRES_MAX_RANGEE; j++)
+		for (j = 0; j < pBibli->taille; j++)
 		{
 			if (pBibli->livres[i][j].bEmprunte != DISPONIBLE)
 			{
@@ -572,15 +656,162 @@ void afficher_menu()
 	printf("=============\n");
 }
 
+//-----------------------------------------------------------------------------
+//							Fonction emprunter_livre_biblio
+// Cette fonction permet de mettre a jour le champs bemprunte d'un livre dans 
+// la bibliotheque dont le numero isbn est precise en parametre.
+// Le champs bEmprunte est mit a EMPRUNT 
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle le livre 
+//						 est stocké
+//				isbn   = numero isbn du livre a emprunter
+// Retour :		aucun
+//-----------------------------------------------------------------------------
 void emprunter_livre_biblio(t_bibliotheque * pBibli, int isbn)
 {
-	/*t_livre * livre_emprunte;
-	livre_emprunte = rechercher_livre_isbn(pBibli,isbn);
-	livre_emprunte->bEmprunte = EMPRUNT;*/
 	rechercher_livre_isbn(pBibli, isbn)->bEmprunte = EMPRUNT;
 }
 
-void ramener_livre_biblio(t_bibliotheque * pBibli, int isbn)
+//-----------------------------------------------------------------------------
+//							Fonction rendre_livre_biblio
+// Cette fonction permet de mettre a jour le champs bemprunte d'un livre dans 
+// la bibliotheque dont le numero isbn est precise en parametre.
+// Le champs bEmprunte est mit a DISPONIBLE
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle le livre 
+//						 est stocké
+//				isbn   = numero isbn du livre a rendre
+// Retour :		aucun
+//-----------------------------------------------------------------------------
+void rendre_livre_biblio(t_bibliotheque * pBibli, int isbn)
 {
 	rechercher_livre_isbn(pBibli, isbn)->bEmprunte = DISPONIBLE;
+}
+
+//-----------------------------------------------------------------------------
+//							Fonction agrandir_etagere
+// Cette fonction permet de doubler la taille de la deuxieme dimension de 
+// la bibliotheque. Les nouveaux emplacement sont remplis avec des livres
+// initialises.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque a agrandir
+// Retour :		aucun
+//-----------------------------------------------------------------------------
+void agrandir_etagere(t_bibliotheque * pBibli)
+{
+	int i, j;
+	int nouvelle_taille = pBibli->taille * FACTEUR_AGRANDISSEMENT;
+	for (i = 0; i < NB_GENRES; i++)
+	{
+		pBibli->livres[i] = (t_livre*)realloc(pBibli->livres[i],
+			nouvelle_taille * sizeof(t_livre));
+
+		if (pBibli->livres[i] != NULL)
+		{
+			for (j = pBibli->taille; j < nouvelle_taille; j++)
+			{
+				initialiser_livre(&pBibli->livres[i][j]);
+			}
+		}
+	}
+	pBibli->taille = nouvelle_taille;
+}
+
+//-----------------------------------------------------------------------------
+//							Fonction ajouter_etudiant_file
+// Cette fonction permet d'ajouter un etudiant dans la file de la bibliotheque.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle se trouve
+//						 la file
+//				etudiant = etudiant a ajouter a la file
+// Retour :		aucun
+//-----------------------------------------------------------------------------
+void ajouter_etudiant_file(t_bibliotheque * pBibli, t_etudiant etudiant)
+{
+	enfiler(pBibli->file_etudiants, etudiant);
+}
+
+//-----------------------------------------------------------------------------
+//							Fonction servir_etudiant
+// Cette fonction permet de servir le premier etudiant de la file d'attente.
+// Le kiosque propose differentes actions a l'etudiant via un menu (voir la
+// fonction servir_etudiant_machine) et il est retire de la file d'attente.
+//
+// Parametres : pBibli = pointeur vers la bibliotheque dans laquelle se trouve
+//						 la file
+// Retour :		aucun
+//-----------------------------------------------------------------------------
+void servir_etudiant(t_bibliotheque * pBibli)
+{
+	t_etudiant etudiant;
+
+	if (pBibli->file_etudiants != NULL)
+	{
+		if (!file_vide(pBibli->file_etudiants))
+		{
+			etudiant = desenfiler(pBibli->file_etudiants);
+			pBibli->machine.utilisateur = &etudiant;
+			servir_etudiant_machine(&pBibli->machine, &etudiant);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+//							Fonction ajouter_livre
+// Cette fonction permet d'ajouter un livre dans la bibliotheque en renseignant
+// les valeurs des champs manuellement.
+//
+// Parametres : pBibli = pointeur vers le tableau de t_bibliotheque a remplir
+// Retour :		aucun
+//-----------------------------------------------------------------------------
+void ajouter_livre(t_bibliotheque * pBibli)
+{
+	// Variables permettant d'enregistrer un livre
+	t_genre genre;
+	char titre[TAILLE_TITRE];
+	char nom[TAILLE_NOM];
+	char prenom[TAILLE_PRENOM];
+	int nb_pages;
+	int isbn;
+	int emprunt;
+	char buffer;
+
+	// Enregistrement des valeurs du fichier texte dans les variables
+	printf("Entrez le genre du livre : ");
+	scanf("%d", &genre);
+	fscanf(stdin, "%c", &buffer);
+	printf("\nEntrez le titre du livre : ");
+	fgets(titre, TAILLE_TITRE,stdin);
+	printf("\nEntrez le prenom de l'auteur du livre : ");
+	fgets(prenom, TAILLE_PRENOM,stdin);
+	printf("\nEntrez le nom de l'auteur du livre : ");
+	fgets(nom, TAILLE_NOM,stdin);
+	printf("\nEntrez le nombre de pages du livre : ");
+	scanf("%d", &nb_pages);
+	printf("\nEntrez le numero isbn du livre : ");
+	scanf("%d", &isbn);
+	printf("\nEntrez la disponibilite du livre : ");
+	scanf("%d", &emprunt);
+
+	// Enlever les sauts de lignes en trop a la fin des chaines
+	retirer_sautligne(titre);
+	retirer_sautligne(prenom);
+	retirer_sautligne(nom);
+
+	// Si l'etagere est remplie, on double sa taille avant d'ajouter 
+	// un livre
+	if (pBibli->nb_livres[genre] == pBibli->taille)
+	{
+		agrandir_etagere(pBibli);
+	}
+
+	// Mise a jour d'un livre de la bibliotheque
+	pBibli->livres[genre][pBibli->nb_livres[genre]].genre = genre;
+	strcpy(pBibli->livres[genre][pBibli->nb_livres[genre]].titre, titre);
+	strcpy(pBibli->livres[genre][pBibli->nb_livres[genre]].auteur_prenom, prenom);
+	strcpy(pBibli->livres[genre][pBibli->nb_livres[genre]].auteur_nom, nom);
+	pBibli->livres[genre][pBibli->nb_livres[genre]].nb_pages = nb_pages;
+	pBibli->livres[genre][pBibli->nb_livres[genre]].isbn = isbn;
+	pBibli->livres[genre][pBibli->nb_livres[genre]].bEmprunte = emprunt;
+	pBibli->nb_livres[genre]++;
 }
